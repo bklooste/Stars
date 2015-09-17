@@ -1,0 +1,27 @@
+[package]
+name = "rserver"
+version = "0.1.0"
+authors = ["ben"]
+
+[build-dependencies]
+serde_codegen = "*"
+syntex = "*"
+
+[dependencies]
+iron = "*"
+rustc-serialize = "0.3"
+router = "*"
+hyper = "*"
+time = "*"
+rand = "*"
+r2d2 = "*"
+r2d2_redis = "0.1.0"
+# redis = "0.5.0"
+# hyper-router = "0.1.0"
+# serde = "*"
+# serde_json = "*"
+# serde_macros = "*"
+
+[dependencies.redis]
+version = "*"
+features = ["unix_socket"]
