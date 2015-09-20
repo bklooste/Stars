@@ -8,13 +8,15 @@ extern crate time;
 // extern crate serde;
 // extern crate serde_json;
 /// now r2d2-redis
-extern crate r2d2;
-extern crate r2d2_redis;
 
 
-mod rdbhelp;
+
+//mod rdbhelp;
 mod queryshipdesign;
+mod queryrace;
 mod gamemanage;
+mod race;
+mod rdbhelp;
 
 use iron::prelude::*;
 use iron::{BeforeMiddleware, AfterMiddleware, typemap,status};
@@ -56,11 +58,16 @@ struct Greeting {
 
 //let payload = json::encode(&greeting).unwrap();NewReports = 1
 
-fn get_ship_designs(req: &mut Request) -> IronResult<Response> {
 
-let con = rdbhelp::getconnection();
+// fn getPool() -> r2d2::Pool {
+//
+// }
 
-queryshipdesign::do_something(&con);
+pub fn get_ship_designs(req: &mut Request) -> IronResult<Response> {
+
+//    queryshipdesign::do_something(&con);
+println!("received");
+
     let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
 //        let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
 
@@ -74,20 +81,10 @@ queryshipdesign::do_something(&con);
       Ok(Response::with((status::Ok, payload)))
   }
 
-// fn getPool() -> r2d2::Pool {
-//
-// }
 
 
 fn main() {
-    // pool
-    let config = r2d2::Config::builder()
-        .error_handler(Box::new(r2d2::LoggingErrorHandler))
-        .build();
-    let manager = r2d2_redis::RedisConnectionManager::new("localhost:1234").unwrap();
-    let pool = r2d2::Pool::new(config, manager).unwrap();
-
-
+    println!("starting server");
     // web hosting
     let greeting = Arc::new(Mutex::new(Greeting { msg: "Hello, World".to_string() }));
     let greeting_clone = greeting.clone();
@@ -96,26 +93,34 @@ fn main() {
     // .get("/", frontpage)
     // .post("login", loginpage);
 
+
     router
     .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
+    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
+//    .get("/races/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
     .post("/set", move |r: &mut Request| set_greeting(r, &mut greeting_clone.lock().unwrap()));
 
 
     let mut chain = Chain::new(router);
     chain.link_before(ResponseTime);
     chain.link_after(ResponseTime);
+    let pool = rdbhelp::createPool();
+    
     Iron::new(chain).http("localhost:3000").unwrap();
 
 
 
-    for _ in 0..20i32 {
-        let pool = pool.clone();
-        thread::spawn(move || {
-            let conn = pool.get().unwrap();
-            // use the connection
-            // it will be returned to the pool when it falls out of scope.
-        });
-    };
+//    let con = rdbhelp::getConnection(pool);
+
+    //let cloned_pool = pool.clone();
+    // for _ in 0..20i32 {
+    //     thread::spawn(move || {
+    //         let conn = rdbhelp::getConnection(cloned_pool);
+    //         //let conn = pool.get().unwrap();
+    //         // use the connection
+    //         // it will be returned to the pool when it falls out of scope.
+    //     });
+    // };
     //
     // finish
 
@@ -169,4 +174,6 @@ fn main() {
 
 
     //Iron::new(router).http("localhost:3000").unwrap();
+    println!("finish server");
+
 }

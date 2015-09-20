@@ -4,6 +4,9 @@ use redis::Commands;
 use redis::Connection;
 
 
+//let con = rdbhelp::getconnection();
+
+
 
 pub fn do_something(conn: &redis::Connection) -> redis::RedisResult<()> {
     //let _ : () = try!(con.set("my_key", 42));
@@ -21,7 +24,7 @@ pub fn do_something(conn: &redis::Connection) -> redis::RedisResult<()> {
 //
 //     let con = getdb();
 //     //let conn = try!(client.get_connection());
-//
+//.get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
 //     /* do something here */
 //      //
 //     //  let conn = client.get_connection().unwrap();

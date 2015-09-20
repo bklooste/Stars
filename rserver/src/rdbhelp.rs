@@ -1,6 +1,17 @@
 extern crate redis;
+extern crate r2d2;
+extern crate r2d2_redis;
+
 use redis::Commands;
 use redis::Connection;
+use self::r2d2::{Pool , PooledConnection};
+use self::r2d2_redis::RedisConnectionManager;
+
+pub type RedisPooledConnection = r2d2::PooledConnection<RedisConnectionManager>;
+pub type RedisPool = r2d2::Pool<RedisConnectionManager>;
+
+//static pool :  RedisPool = init();
+
 
 pub fn getconnection() -> redis::Connection {
     let client = redis::Client::open("redis://127.0.0.1/1").unwrap(); // 1 is db #
@@ -18,4 +29,19 @@ pub fn getconnection() -> redis::Connection {
     //
     //
     //Ok(())
+}
+
+
+pub fn createPool() -> RedisPool {
+// pool
+    let config = r2d2::Config::builder()
+        .error_handler(Box::new(r2d2::LoggingErrorHandler))
+        .build();
+    let manager = r2d2_redis::RedisConnectionManager::new("redis://127.0.0.1/").unwrap();
+    return r2d2::Pool::new(config, manager).unwrap();
+}
+
+pub fn getConnection( pool : RedisPool) -> RedisPooledConnection
+{
+    return pool.get().unwrap();
 }

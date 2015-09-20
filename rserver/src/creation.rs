@@ -56,10 +56,12 @@
 // 	double mSecondaryPop;
 // 	long mSWFactories;
 // 	long mSWMines;
-// 	long mSWDefenses;
+// 	long mSWDefenses;growth: i32,
+    
 // 	long mSWMaxMin;
 // 	long mSWMinMin;
-// 	long mMinSWDistance;
+// 	long mMinSWDistance;growth: i32,
+
 // 	long mMaxSWDistance;
 //
 // 	string GetNextName();
