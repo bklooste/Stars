@@ -10,11 +10,11 @@ extern crate time;
 /// now r2d2-redis
 
 
-
+mod webfascade;
 //mod rdbhelp;
-mod queryshipdesign;
-mod queryrace;
-mod gamemanage;
+// mod queryshipdesign;
+// mod queryrace;
+
 mod race;
 mod rdbhelp;
 
@@ -27,7 +27,6 @@ use std::io::Read;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
-
 use rustc_serialize::json;
 
 struct ResponseTime;
@@ -63,28 +62,12 @@ struct Greeting {
 //
 // }
 
-pub fn get_ship_designs(req: &mut Request) -> IronResult<Response> {
-
-//    queryshipdesign::do_something(&con);
-println!("received");
-
-    let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
-//        let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
-
-    gamemanage::do_score();
-    println!("gameid: {}", gameid);
-//        println!("userid {}",  userid);
-    // validate gameid
-
-//request.body
-      let payload = json::encode(gameid).unwrap();
-      Ok(Response::with((status::Ok, payload)))
-  }
-
 
 
 fn main() {
     println!("starting server");
+    let pool = rdbhelp::createPool();
+
     // web hosting
     let greeting = Arc::new(Mutex::new(Greeting { msg: "Hello, World".to_string() }));
     let greeting_clone = greeting.clone();
@@ -95,17 +78,16 @@ fn main() {
 
 
     router
-    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
-    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
-//    .get("/races/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
+    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| webfascade::get_ship_designs(r))
+//    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
+    .get("/races/:gameid/:playerid/:user", move |r: &mut Request| webfascade::get_ship_designs(r))
     .post("/set", move |r: &mut Request| set_greeting(r, &mut greeting_clone.lock().unwrap()));
 
 
     let mut chain = Chain::new(router);
     chain.link_before(ResponseTime);
     chain.link_after(ResponseTime);
-    let pool = rdbhelp::createPool();
-    
+
     Iron::new(chain).http("localhost:3000").unwrap();
 
 
