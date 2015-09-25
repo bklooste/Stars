@@ -57,7 +57,7 @@
 // 	long mSWFactories;
 // 	long mSWMines;
 // 	long mSWDefenses;growth: i32,
-    
+
 // 	long mSWMaxMin;
 // 	long mSWMinMin;
 // 	long mMinSWDistance;growth: i32,

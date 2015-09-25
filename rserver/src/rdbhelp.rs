@@ -2,6 +2,7 @@ extern crate redis;
 extern crate r2d2;
 extern crate r2d2_redis;
 
+use std::sync::Arc;
 use redis::Commands;
 use redis::Connection;
 use self::r2d2::{Pool , PooledConnection};
@@ -41,7 +42,10 @@ pub fn createPool() -> RedisPool {
     return r2d2::Pool::new(config, manager).unwrap();
 }
 
-pub fn getConnection( pool : RedisPool) -> RedisPooledConnection
-{
-    return pool.get().unwrap();
-}
+
+//let pool = Arc::new(r2d2::Pool::new(config, manager, error_handler).unwrap());
+
+// pub fn getConnection( pool : RedisPool) -> RedisPooledConnection
+// {
+//     return pool.get().unwrap();
+// }

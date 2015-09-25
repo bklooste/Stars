@@ -3,31 +3,37 @@ extern crate rustc_serialize;
 
 
 extern crate iron;
+extern crate persistent;
 extern crate router;
 extern crate time;
 // extern crate serde;
 // extern crate serde_json;
 /// now r2d2-redis
 
-
 mod webfascade;
-//mod rdbhelp;
-// mod queryshipdesign;
-// mod queryrace;
-
-mod race;
 mod rdbhelp;
+
 
 use iron::prelude::*;
 use iron::{BeforeMiddleware, AfterMiddleware, typemap,status};
-use time::precise_time_ns;
+use iron::typemap::Key;
 use router::Router;
 
+use time::precise_time_ns;
+
+use std::env;
 use std::io::Read;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use rustc_serialize::json;
+
+use rdbhelp::RedisPool;
+
+
+
+pub struct AppDb;
+impl Key for AppDb { type Value = RedisPool; }
 
 struct ResponseTime;
 
@@ -48,44 +54,32 @@ impl AfterMiddleware for ResponseTime {
     }
 }
 
-
-//#[derive(Serialize, Deserialize, Debug)]
-#[derive(RustcDecodable, RustcEncodable)]
-struct Greeting {
-    msg: String
+fn environment(_: &mut Request) -> IronResult<Response> {
+    let powered_by:String = match env::var("POWERED_BY") {
+        Ok(val) => val ,
+        Err(_) => "Iron".to_string()
+    };
+    let message = format!("Powered by: {}, pretty cool aye", powered_by);
+    Ok(Response::with((status::Ok, message)))
 }
-
-//let payload = json::encode(&greeting).unwrap();NewReports = 1
-
-
-// fn getPool() -> r2d2::Pool {
-//
-// }
-
 
 
 fn main() {
     println!("starting server");
     let pool = rdbhelp::createPool();
 
-    // web hosting
-    let greeting = Arc::new(Mutex::new(Greeting { msg: "Hello, World".to_string() }));
-    let greeting_clone = greeting.clone();
     let mut router = Router::new();
-// router
-    // .get("/", frontpage)
-    // .post("login", loginpage);
 
-
-    router
-    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| webfascade::get_ship_designs(r))
-//    .get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| get_ship_designs(r))
-    .get("/races/:gameid/:playerid/:user", move |r: &mut Request| webfascade::get_ship_designs(r))
-    .post("/set", move |r: &mut Request| set_greeting(r, &mut greeting_clone.lock().unwrap()));
+    router.get("/", environment);
+    router.get("/shipsdesigns/:gameid/:playerid/:user", move |r: &mut Request| webfascade::get_ship_designs(r));
+    router.get("/races/:gameid/:playerid/:user", move |r: &mut Request| webfascade::get_race_designs(r )); //   &pool.get().unwrap()))  //all
+    router.post("/races/:gameid/:playerid/:user", move |r: &mut Request| webfascade::set_race_designs(r ));
+//    router.post("/set", move |r: &mut Request| set_greeting(r, &mut greeting_clone.lock().unwrap()));
 
 
     let mut chain = Chain::new(router);
     chain.link_before(ResponseTime);
+    chain.link(persistent::Read::<AppDb>::both(pool));
     chain.link_after(ResponseTime);
 
     Iron::new(chain).http("localhost:3000").unwrap();
@@ -125,34 +119,24 @@ fn main() {
 
 
 
-//http://ironframework.io/doc/router/struct.Router.html
-    fn hello_world(req: &mut Request, greeting: &Greeting) -> IronResult<Response> {
+    // fn hello_world(req: &mut Request, greeting: &Greeting) -> IronResult<Response> {
+    //
+    //     let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
+    //     println!("gameid: {}", gameid);
+    //       let payload = json::encode(&greeting).unwrap();
+    //       Ok(Response::with((status::Ok, payload)))
+    //   }
 
-        let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
-//        let ref gameid  = req.extensions.get::<Router>().unwrap().find("gameid").unwrap_or("/");
-
-        println!("gameid: {}", gameid);
-//        println!("userid {}",  userid);
-        // validate gameid
-
-
-//          let ref userid  = req.extensions.get::<Router>().unwrap().find("query").unwrap_or("/");
-// print it
-          //request.body
-          let payload = json::encode(&greeting).unwrap();
-          Ok(Response::with((status::Ok, payload)))
-      }
-
-    // Receive a message by POST and play it back.
-    fn set_greeting(request: &mut Request , greeting: &mut Greeting) -> IronResult<Response> {
-        let mut payload = String::new();
-        request.body.read_to_string(&mut payload).unwrap();
-        //let request: Greeting = json::decode(&payload).unwrap();
-        //let greeting = Greeting { msg: request.msg };
-        //let payload = json::to_string(&greeting).unwrap();
-        *greeting = json::decode(&payload).unwrap();
-        Ok(Response::with(status::Ok))
-    }
+    // // Receive a message by POST and play it back.
+    // fn set_greeting(request: &mut Request , greeting: &mut Greeting) -> IronResult<Response> {
+    //     let mut payload = String::new();
+    //     request.body.read_to_string(&mut payload).unwrap();
+    //     //let request: Greeting = json::decode(&payload).unwrap();
+    //     //let greeting = Greeting { msg: request.msg };
+    //     //let payload = json::to_string(&greeting).unwrap();
+    //     *greeting = json::decode(&payload).unwrap();
+    //     Ok(Response::with(status::Ok))
+    // }
 
 
     //Iron::new(router).http("localhost:3000").unwrap();
