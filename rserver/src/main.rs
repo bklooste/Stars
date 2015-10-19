@@ -6,34 +6,38 @@ extern crate iron;
 extern crate persistent;
 extern crate router;
 extern crate time;
+extern crate uuid;
 // extern crate serde;
 // extern crate serde_json;
 /// now r2d2-redis
 
+mod cqrs {
+    pub mod aggregate;
+}
+
+mod utils {
+    pub mod logging;
+    pub mod error;
+}
+
+mod bl {
+    pub mod race;
+}
+
 mod webfascade;
 mod rdbhelp;
 
-
 use iron::prelude::*;
 use iron::{BeforeMiddleware, AfterMiddleware, typemap,status};
-use iron::typemap::Key;
 use router::Router;
-
 use time::precise_time_ns;
-
 use std::env;
-use std::io::Read;
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::thread;
-use rustc_serialize::json;
+//use std::f64;
+use webfascade::AppDb;
 
-use rdbhelp::RedisPool;
+use cqrs::aggregate::Circle;
 
 
-
-pub struct AppDb;
-impl Key for AppDb { type Value = RedisPool; }
 
 struct ResponseTime;
 
@@ -65,6 +69,14 @@ fn environment(_: &mut Request) -> IronResult<Response> {
 
 
 fn main() {
+
+    //std::f64::consts::
+    let c = Circle::new( 0.0, 0.0, 2.0 ); //often use new
+    //let c = aggregate::Circle { x: 0.0, y: 0.0, radius: 2.0 }; //often use new
+    println!("{}", c.area());
+
+
+
     println!("starting server");
     let pool = rdbhelp::createPool();
 

@@ -8,12 +8,13 @@ dependencies = [
  "r2d2 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "r2d2_redis 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "redis 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "redis 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "router 0.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_codegen 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "syntex 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
+ "uuid 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -312,17 +313,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "redis"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "sha1 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "unix_socket 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "url 0.2.37 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "route-recognizer"
 version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -452,15 +442,6 @@ version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "unix_socket"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "debug-builders 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "unsafe-any"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -474,6 +455,15 @@ version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "uuid"
+version = "0.1.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "rand 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
